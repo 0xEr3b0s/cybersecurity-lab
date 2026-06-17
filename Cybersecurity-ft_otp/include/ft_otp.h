@@ -11,7 +11,8 @@ typedef struct params_s {
 	char *filename;
 } params_t;
 
-int parse_option(char **av);
+void parse_option(params_t *params, char **av);
+void check_key(params_t params);
 
 /* UTILS */
 void error(char *msg);
