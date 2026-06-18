@@ -71,6 +71,7 @@ void check_key(params_t *params) {
 	params->key = (char *)malloc(count_char * sizeof(char));
 	memcpy(params->key, rebuild_str, count_char);
 	params->key_size = count_char;
+	params->decoded_key_size = count_char / 2;
 
 	free(rebuild_str);
 }

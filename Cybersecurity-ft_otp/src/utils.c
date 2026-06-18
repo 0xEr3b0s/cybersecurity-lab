@@ -14,3 +14,17 @@ void error(char *msg) {
 	free(final_msg);
 	exit(1);
 }
+
+void debug_hexdump(const char *label, const void *data, size_t len)
+{
+	const unsigned char *bytes = data;
+
+	fprintf(stderr, "[DEBUG] %-12s (%zu octets): ", label, len);
+	for (size_t i = 0; i < len; i++)
+	{
+		fprintf(stderr, "%02x", bytes[i]);
+		if ((i + 1) % 4 == 0 && i + 1 < len)
+			fprintf(stderr, " ");
+	}
+	fprintf(stderr, "\n");
+}
