@@ -26,7 +26,8 @@ static char *concat(const char *s1, const char *s2) {
 	char *result = malloc(len1 + len2 + 1);
 
 	if (!result) error("malloc failed in concat");
-	if (len1 > 0) memcpy(result, s1, len1);
+	if (len1 > 0) memcpy(result, s1, len1 + 1);
+	result[len1 + 1] = '\0'; // no impact just to disable warning
 	memcpy(result + len1, s2, len2 + 1);
 	return result;
 }
