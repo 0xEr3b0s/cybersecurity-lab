@@ -1,7 +1,7 @@
 #ifndef FT_OTP_H
 #define FT_OTP_H
 
-#define DEBUG_FLAG 1
+#define DEBUG_FLAG 0
 
 #include <stddef.h>
 
@@ -9,7 +9,7 @@ typedef struct params_s {
 	int g_flag;
 	int k_flag;
 	char *filename;
-	char *key;					// malloc
+	unsigned char *key;					// malloc
 	unsigned char *decoded_key; // malloc
 	unsigned char message[8];
 	unsigned char hmac[20];
