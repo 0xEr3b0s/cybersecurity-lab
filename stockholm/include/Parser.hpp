@@ -7,11 +7,11 @@ class Parser {
 		int option_code;
 		std::string key;
 
-		char *getCmdOption(char ** begin, char ** end, const std::string & option);
-		bool cmdOptionExists(char** begin, char** end, const std::string& option);
+		static char *getCmdOption(char ** begin, char ** end, const std::string & option);
+		static bool cmdOptionExists(char** begin, char** end, const std::string& option);
 
 	public:
 		Parser *parse(int ac, char **av);
-		int getOptionCode(void);
-		std::string getKey(void);
+		int getOptionCode(void) const;
+		std::string getKey(void) const;
 };

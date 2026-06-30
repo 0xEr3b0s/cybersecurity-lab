@@ -7,21 +7,24 @@ List of option accepted:
 */
 
 #include <iostream>
+#include <algorithm>
+
 #include "Parser.hpp"
 #include "Utils.hpp"
 
 Parser *Parser::parse(int ac, char **av) {
+	(void)ac;
 	std::string key;
 	std::string option = av[1];
-	
+
 	return this;
 }
 
-int Parser::getOptionCode(void) {
+int Parser::getOptionCode(void) const {
 	return this->option_code;
 }
 
-std::string Parser::getKey(void) {
+std::string Parser::getKey(void) const {
 	return this->key;
 }
 
