@@ -18,7 +18,7 @@ class Parser {
 		static bool cmdOptionExists(char** begin, char** end, const std::string& option);
 
 	public:
-		Parser *parse(int ac, char **av);
+		void parse(int ac, char **av);
 		int getOptionfield(void) const;
 		std::string getKey(void) const;
 };
