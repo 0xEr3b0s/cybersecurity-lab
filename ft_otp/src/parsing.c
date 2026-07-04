@@ -58,12 +58,14 @@ void check_key(params_t *params) {
 							  rebuild_str[count_char - 1] == '\r'))
 		rebuild_str[--count_char] = '\0';
 
-	if (count_char < 64 || (count_char % 2) != 0) {
-		char tmp[128];
-		sprintf(tmp, "key needs minimum 64 character (%zu) and be even",
-				count_char);
+	const char *msg = NULL;
+	if (count_char < 64)
+		msg = "key must be at least 64 hexadecimal characters";
+	else if ((count_char % 2) != 0)
+		msg = "key length must be even";
+	if (msg != NULL) {
 		free(rebuild_str);
-		error(tmp);
+		error((char *)msg);
 	}
 	for (size_t i = 0; i < count_char; i++) {
 		if (isxdigit((unsigned char)rebuild_str[i]) == 0) {
