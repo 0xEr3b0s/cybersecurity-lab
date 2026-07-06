@@ -10,7 +10,7 @@
 
 namespace fs = std::filesystem;
 
-Discovering::Discovering(int option_field) {
+Discovering::Discovering(int &option_field) {
 	this->getenv_result = std::getenv(this->home.c_str());
 	if (this->getenv_result == nullptr) {
 		std::cout << "Error: getenv failed ( " << this->home << " not found )"
@@ -18,6 +18,10 @@ Discovering::Discovering(int option_field) {
 		exit(1);
 	}
 	this->complete_path = this->getenv_result + this->infection_folder_name;
+	if (!fs::exists(this->complete_path)) {
+		std::cerr << "folder infection not existing (" << this->complete_path << ")" << std::endl;
+		exit(1);
+	}
 
 	try {
 		const auto ext_set = wannacry_extensions();
@@ -34,10 +38,6 @@ Discovering::Discovering(int option_field) {
 					ext_set.end())
 					this->final_paths_vector.push_back(entry);
 			}
-		}
-		for (const fs::directory_entry &entry : this->final_paths_vector) {
-			if ((option_field & OPT_SILENT) == 0)
-				std::cout << entry << std::endl;
 		}
 	} catch (const std::filesystem::filesystem_error &e) {
 		std::cerr << "FileSystemError: directory not found" << std::endl;
