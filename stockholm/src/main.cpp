@@ -9,11 +9,7 @@ int main(int ac, char **av) {
 				  << std::endl;
 		exit(1);
 	}
-	std::cout << "Hello stockholm" << std::endl;
-	Parser p;
-	p.parse(ac, av);
-	std::cout << p.getKey() << " :: " << p.getOptionfield() << std::endl;
-	Discovering d;
-	d.discover();
+	Parser p(ac, av);
+	Discovering d(p.getOptionfield());
 	return 0;
 }
