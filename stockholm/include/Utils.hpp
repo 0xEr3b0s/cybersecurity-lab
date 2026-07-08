@@ -1,3 +1,5 @@
+#pragma once
+
 #include <iostream>
 
 #define OPT_SILENT (1 << 0)
@@ -10,6 +12,5 @@
 namespace utils {
 
 void usage(char *av);
-void error(std::string s);
 
 } // namespace utils

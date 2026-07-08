@@ -1,5 +1,4 @@
 #pragma once
-
 #include <unordered_set>
 #include <string>
 
@@ -22,7 +21,7 @@ inline std::unordered_set<std::string> wannacry_extensions() {
         ".sql", ".sqlite3", ".sqlitedb", ".mdb", ".accdb", ".db",
         ".dbf", ".odb", ".frm", ".myd", ".myi", ".ibd", ".mdf", ".ldf",
         ".cpp", ".c", ".h", ".cs", ".java", ".class", ".jar",
-        ".js", ".php", ".asp", ".jsp", ".rb", ".pl", ".sh",
+        ".js", ".php", ".asp", ".jsp", ".rb", ".pl", ".sh", ".py",
         ".vb", ".vbs", ".ps1", ".bat", ".cmd", ".asm", ".pas",
         ".sln", ".suo",
         ".pem", ".csr", ".crt", ".key", ".pfx", ".p12", ".der", ".asc",

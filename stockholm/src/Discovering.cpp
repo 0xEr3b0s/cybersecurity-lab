@@ -10,7 +10,7 @@
 
 namespace fs = std::filesystem;
 
-Discovering::Discovering(int &option_field) {
+Discovering::Discovering(const int &option_field) {
 	this->getenv_result = std::getenv(this->home.c_str());
 	if (this->getenv_result == nullptr) {
 		std::cout << "Error: getenv failed ( " << this->home << " not found )"

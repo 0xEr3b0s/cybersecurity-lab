@@ -13,6 +13,6 @@ class Discovering {
 		std::vector<std::filesystem::directory_entry> final_paths_vector;
 
 	public:
-		Discovering(int &option_field);
+		Discovering(const int &option_field);
 		std::vector<std::filesystem::directory_entry> getFinalPaths(void);
 };

@@ -1,4 +1,5 @@
 #include <iostream>
+#include "Cipher.hpp"
 #include "Discovering.hpp"
 #include "Parser.hpp"
 
@@ -11,5 +12,6 @@ int main(int ac, char **av) {
 	}
 	Parser p(ac, av);
 	Discovering d(p.getOptionfield());
+	Cipher c(d.getFinalPaths(), p.getKey(), p.getOptionfield());
 	return 0;
 }
