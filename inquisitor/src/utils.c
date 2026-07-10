@@ -1,4 +1,4 @@
-#include "util.h"
+#include "utils.h"
 
 void usage(char *msg) {
 	printf("%s\n", msg);
