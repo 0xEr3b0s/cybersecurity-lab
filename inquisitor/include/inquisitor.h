@@ -9,6 +9,7 @@ typedef struct s_config {
 
 	char *ip_local;
 	char *mac_local;
+	int ifindex;
 } t_config;
 
 #endif

@@ -1,3 +1,12 @@
+#include <netinet/in.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <ifaddrs.h>
+#include <arpa/inet.h>
+#include <sys/ioctl.h>
+#include <net/if.h>
+#include <netinet/ether.h>
+
 #include "parsing.h"
 #include "inquisitor.h"
 #include "libft.h"
@@ -31,34 +40,28 @@ void print_config(t_config *config) {
 	printf(CYAN "└──────────────┴──────────────────────┘\n" RESET);
 }
 
-static int ft_parse_octet (const char *nptr, int *err) {
+static int ft_parse_octet(const char *nptr, int *err) {
 	int result;
 
 	*err = 0;
 	result = 0;
-	if (!nptr || !*nptr)
-		return (*err = 1, 0);
-	while (*nptr)
-	{
-		if (*nptr < '0' || *nptr > '9')
-			return (*err = 1, 0);
+	if (!nptr || !*nptr) return (*err = 1, 0);
+	while (*nptr) {
+		if (*nptr < '0' || *nptr > '9') return (*err = 1, 0);
 		result = result * 10 + (*nptr - '0');
-		if (result > 255)
-			return (*err = 1, 0);
+		if (result > 255) return (*err = 1, 0);
 		nptr++;
 	}
 	return (result);
 }
 
-static int  ft_parse_hex_octet(const char *nptr, int *err) {
+static int ft_parse_hex_octet(const char *nptr, int *err) {
 	int result;
 
 	*err = 0;
 	result = 0;
-	if (!nptr || !*nptr)
-		return (*err = 1, 0);
-	while (*nptr)
-	{
+	if (!nptr || !*nptr) return (*err = 1, 0);
+	while (*nptr) {
 		if (*nptr >= '0' && *nptr <= '9')
 			result = result * 16 + (*nptr - '0');
 		else if (*nptr >= 'a' && *nptr <= 'f')
@@ -67,8 +70,7 @@ static int  ft_parse_hex_octet(const char *nptr, int *err) {
 			result = result * 16 + (*nptr - 'A' + 10);
 		else
 			return (*err = 1, 0);
-		if (result > 255)
-			return (*err = 1, 0);
+		if (result > 255) return (*err = 1, 0);
 		nptr++;
 	}
 	return (result);
@@ -95,7 +97,7 @@ int is_ipv4(const char *src) {
 			ft_free_split(split_src);
 			return 1;
 		}
-		if (converted_value < 0 || converted_value > 255){
+		if (converted_value < 0 || converted_value > 255) {
 			ft_free_split(split_src);
 			return 1;
 		}
@@ -125,7 +127,7 @@ int is_mac_addr(const char *src) {
 			ft_free_split(split_src);
 			return 1;
 		}
-		if (converted_value < 0 || converted_value > 255){
+		if (converted_value < 0 || converted_value > 255) {
 			ft_free_split(split_src);
 			return 1;
 		}
@@ -135,7 +137,47 @@ int is_mac_addr(const char *src) {
 }
 
 int discover_interface(t_config *config) {
-	(void)config;
+	struct ifaddrs *interface = NULL;
+	struct ifaddrs *tmp = NULL;
+	int socket_fd;
+	struct ifreq ifr = {0};
+
+	if (getifaddrs(&interface) == -1) return -1;
+	tmp = interface;
+	while (tmp != NULL) {
+		if (tmp->ifa_flags & IFF_LOOPBACK) {
+			tmp = tmp->ifa_next;
+			continue;
+		}
+		if (tmp->ifa_addr != NULL && tmp->ifa_addr->sa_family == AF_INET) {
+			struct sockaddr_in *addr = (struct sockaddr_in *)tmp->ifa_addr;
+			config->ip_local = ft_strdup(inet_ntoa(addr->sin_addr));
+			socket_fd = socket(AF_INET, SOCK_DGRAM, 0);
+			if (socket_fd == -1) {
+				freeifaddrs(interface);
+				return -1;
+			}
+			ft_strlcpy(ifr.ifr_name, tmp->ifa_name, IFNAMSIZ);
+			if (ioctl(socket_fd, SIOCGIFHWADDR, &ifr) == -1) {
+				close(socket_fd);
+				freeifaddrs(interface);
+				return -1;
+			}
+			config->mac_local = ft_strdup(
+				ether_ntoa((struct ether_addr *)ifr.ifr_hwaddr.sa_data));
+			if (ioctl(socket_fd, SIOCGIFINDEX, &ifr) == -1) {
+				close(socket_fd);
+				freeifaddrs(interface);
+				return -1;
+			}
+			config->ifindex = ifr.ifr_ifindex;
+			close(socket_fd);
+			break;
+		}
+		tmp = tmp->ifa_next;
+	}
+	freeifaddrs(interface);
+	if (!config->ip_local || !config->mac_local) return -1;
 	return 0;
 }
 
