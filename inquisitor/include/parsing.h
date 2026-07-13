@@ -2,11 +2,12 @@
 #define PARSING_H
 
 #include "inquisitor.h"
+#include "libft.h"
 
 void parse_arguments(int ac, char **av, t_config *config);
 
-int is_ipv4(char *src);
-int is_mac_addr(char *src);
+int is_ipv4(const char *src);
+int is_mac_addr(const char *src);
 int discover_interface(t_config *config);
 
 void print_config(t_config *config);

@@ -5,7 +5,7 @@
 #include "utils.h"
 
 int main(int ac, char **av) {
-	t_config config;
+	t_config config = {0};
 	parse_arguments(ac, av, &config);
 
 	/* to delete */
