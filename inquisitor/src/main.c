@@ -6,11 +6,6 @@
 int main(int ac, char **av) {
 	t_config config = {0};
 	parse_arguments(ac, av, &config);
-
-	/* to delete */
-	config.mac_local = "02:42:c0:a8:00:04";
-	/* to delete */
-
 	print_config(&config);
 
 	return 0;
