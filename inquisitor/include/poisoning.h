@@ -2,13 +2,16 @@
 #include <stdio.h>
 
 typedef struct s_eth_header {
-	unsigned char dst[6];
-	unsigned char src[6];
-	unsigned short type;
+	unsigned char mac_dst[6];
+	unsigned char mac_src[6];
+	unsigned short ether_type;
 } __attribute__((__packed__)) s_eth_header;
 
 typedef struct s_arp_msg {
-
+	unsigned short hardware_type;
+	unsigned short protocol_type;
+	unsigned char hardware_addr_len;
+	unsigned char protocol_addr_len;
 } t_arp_msg;
 
 typedef struct s_arp_frame {
