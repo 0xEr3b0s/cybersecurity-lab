@@ -1,5 +1,5 @@
-#include <cstdint>
 #include <stdio.h>
+#include <stdint.h>
 
 typedef struct s_eth_header {
 	unsigned char mac_dst[6];
