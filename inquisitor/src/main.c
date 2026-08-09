@@ -1,3 +1,4 @@
+#include "sniffing.h"
 #include "parsing.h"
 #include "inquisitor.h"
 #include "poisoning.h"

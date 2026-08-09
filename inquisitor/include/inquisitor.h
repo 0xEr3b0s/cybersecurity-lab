@@ -12,6 +12,9 @@ typedef struct s_config {
 	char *local_mac;
 
 	int ifindex;
+
+	char iface;
+	int verbose;
 } t_config;
 
 #endif
