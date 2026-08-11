@@ -41,5 +41,17 @@ void  *capture_loop(void *arg) {
 	return NULL;
 }
 
-// void  ftp_handler(unsigned char *user, const struct pcap_pkthdr *header, const unsigned char *packet);
+void  ftp_handler(unsigned char *user, const struct pcap_pkthdr *header, const unsigned char *packet) {
+	t_sniffer *s = (t_sniffer *)user;
+	unsigned int clen = header->caplen;
+
+	if (clen < 14 + 20 + 20)
+		return;
+	struct ether_header *eth = packet;
+	if (stohs(eth->ether_type) != ETHERTYPE_IP)
+		return;
+
+	struct ip *ip = (packet + 14);
+	unsigned int ip_len = ip->ip_hl * 4;
+}
 // void  stop_sniffer(t_sniffer *s);
