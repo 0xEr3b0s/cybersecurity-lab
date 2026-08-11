@@ -177,6 +177,7 @@ int discover_interface(t_config *config) {
 				return (-1);
 			}
 			config->ifindex = ifr.ifr_ifindex;
+			ft_strlcpy(config->iface, tmp->ifa_name, IFNAMSIZ);
 			close(socket_fd);
 			break;
 		}

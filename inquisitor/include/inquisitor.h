@@ -1,6 +1,8 @@
 #ifndef INQUISITOR_H
 #define INQUISITOR_H
 
+#include <net/if.h>
+
 typedef struct s_config {
 	char *spoof_ip;
 	char *spoof_mac;
@@ -13,7 +15,7 @@ typedef struct s_config {
 
 	int ifindex;
 
-	char iface;
+	char iface[IFNAMSIZ];
 	int verbose;
 } t_config;
 
