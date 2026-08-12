@@ -1,15 +1,3 @@
-# ============================================================================ #
-#                            inquisitor — Makefile                             #
-#                                                                              #
-#  Local build (default) + Docker lab orchestration.                          #
-#                                                                              #
-#    make            build the binary locally (needs cc + libpcap-dev)         #
-#    make debug      local build with asan + ubsan                             #
-#    make re         clean rebuild                                             #
-#    make help       list every target                                        #
-#                                                                              #
-#    make up         build image, start the 3-container lab, compile inside    #
-#    make run        run inquisitor in the lab (ARGS="..." to override)        #
 #    make test       trigger an FTP upload/download from the client            #
 #    make down       stop the lab                                              #
 # ============================================================================ #
