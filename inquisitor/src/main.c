@@ -8,10 +8,14 @@
 int main(int ac, char **av) {
 
 	setup_signals();
+	setvbuf(stdout, NULL, _IOLBF, 0); // without this python tests don't see the printf
 
 	t_config config = {0};
 	parse_arguments(ac, av, &config);
 	print_config(&config);
+
+	t_sniffer sniffer = {0};
+	start_sniffer(&sniffer, &config);
 
 	t_config config_in = config;
 	config_in.spoof_ip  = config.target_ip;
@@ -31,8 +35,8 @@ int main(int ac, char **av) {
 		sleep(1);
 	}
 
+	stop_sniffer(&sniffer);
 	restore_arp(fd, config);
-
 	close(fd);
 	free_ressources(&config);
 
