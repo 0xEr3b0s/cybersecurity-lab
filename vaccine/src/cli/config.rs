@@ -6,5 +6,5 @@ pub enum HttpMethod {
 pub struct Config {
     url: String,
     method: HttpMethod,
-    output: Option<String>,
+    pub(crate) output: Option<String>,
 }
