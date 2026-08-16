@@ -4,7 +4,7 @@ pub enum HttpMethod {
 }
 
 pub struct Config {
-    url: String,
-    method: HttpMethod,
+    pub(crate) url: String,
+    pub(crate) method: HttpMethod,
     pub(crate) output: Option<String>,
 }
