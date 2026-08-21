@@ -1,5 +1,6 @@
 use std::env;
 use std::process;
+use vaccine::cli::parse;
 
 fn error(msg: String, code: i32) {
     eprintln!("[ERROR] {msg}", msg=msg);
