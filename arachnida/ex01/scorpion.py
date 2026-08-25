@@ -121,7 +121,7 @@ def display_metadata(path, basic, exif):
         for key, value in exif.items():
             lines.append(f"  {key:<20}: {value}")
 
-    inner = max(len(header), max(len(line) for line in lines))
+    inner = max(len(header), *(len(line) for line in lines)) if lines else len(header)
     border = "=" * (inner + 4)
 
     def boxed(text, center=False):

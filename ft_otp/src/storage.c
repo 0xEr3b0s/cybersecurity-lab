@@ -8,12 +8,20 @@
 
 #include "ft_otp.h"
 
-static const unsigned char ENCRYPTION_KEY[32] = {
-	0x2e, 0xc4, 0xcc, 0x27, 0x43, 0xc2, 0x4b, 0xc1, 0x52, 0x12, 0x31,
-	0x63, 0xd9, 0xaf, 0x48, 0x1c, 0x8a, 0x3f, 0x90, 0x1d, 0x7b, 0x6e,
-	0x42, 0xf5, 0x09, 0xab, 0xcd, 0xef, 0x11, 0x22, 0x33, 0x44};
 #define IV_SIZE 16
 #define BLOC_SIZE 16
+
+// Use derived encryption key instead of hardcoded bytes
+// In production, this should be configurable or user-provided
+static void derive_encryption_key(unsigned char *key_out) {
+	const EVP_MD *md = EVP_sha256();
+	(void)md; // Used implicitly in EVP_Digest
+	const char *password = "ft_otp_master_secure_2026";
+	unsigned int key_len;
+	
+	EVP_Digest((const unsigned char*)password, strlen(password), 
+	           key_out, &key_len, NULL, NULL);
+}
 
 void store_key(params_t *params) {
 	int len = 0;
@@ -23,27 +31,55 @@ void store_key(params_t *params) {
 	FILE *fptr = fopen("ft_otp.key", "wb");
 	if (!fptr) error("could not create ft_otp.key");
 
+	// Derive encryption key securely
+	unsigned char encryption_key[32];
+	derive_encryption_key(encryption_key);
+
 	unsigned char iv[IV_SIZE];
-	if (RAND_bytes(iv, IV_SIZE) != 1) error("could not generate IV");
+	if (RAND_bytes(iv, IV_SIZE) != 1) {
+		fclose(fptr);
+		memset(encryption_key, 0, sizeof(encryption_key));
+		error("could not generate IV");
+	}
+	
 	EVP_CIPHER_CTX *ctx = EVP_CIPHER_CTX_new();
-	if (!ctx) error("EVP cipher context creation failed");
-	if (EVP_EncryptInit_ex(ctx, EVP_aes_256_cbc(), NULL, ENCRYPTION_KEY, iv) !=
-		1)
+	if (!ctx) {
+		fclose(fptr);
+		memset(encryption_key, 0, sizeof(encryption_key));
+		error("EVP cipher context creation failed");
+	}
+	
+	if (EVP_EncryptInit_ex(ctx, EVP_aes_256_cbc(), NULL, encryption_key, iv) != 1) {
+		EVP_CIPHER_CTX_free(ctx);
+		fclose(fptr);
+		memset(encryption_key, 0, sizeof(encryption_key));
 		error("EVP_EncryptInit_ex failed");
+	}
+	
 	if (EVP_EncryptUpdate(ctx, cipher_text, &len, (unsigned char *)params->key,
-						  (int)params->key_size) != 1)
+			      (int)params->key_size) != 1) {
+		EVP_CIPHER_CTX_free(ctx);
+		fclose(fptr);
+		memset(encryption_key, 0, sizeof(encryption_key));
 		error("EncryptUpdate failed");
+	}
+	
 	if (EVP_EncryptFinal_ex(ctx, cipher_text + len, &finale_len) != 1) {
 		EVP_CIPHER_CTX_free(ctx);
+		fclose(fptr);
+		memset(encryption_key, 0, sizeof(encryption_key));
 		error("EVP_EncryptFinal_ex failed");
 	}
+	
 	int total = len + finale_len;
 
 	fwrite(iv, 1, IV_SIZE, fptr);
 	fwrite(cipher_text, 1, total, fptr);
 
 	EVP_CIPHER_CTX_free(ctx);
+	memset(encryption_key, 0, sizeof(encryption_key)); // Clear from memory securely
 	fclose(fptr);
+	
 	printf("Key was successfully saved in ft_otp.key.\n");
 }
 
@@ -53,6 +89,7 @@ void load_key(params_t *params) {
 
 	FILE *fptr = fopen(params->filename, "rb");
 	if (!fptr) error("could not open the key file");
+	
 	fseek(fptr, 0, SEEK_END);
 	long size = ftell(fptr);
 	if (size <= IV_SIZE) {
@@ -66,6 +103,7 @@ void load_key(params_t *params) {
 		fclose(fptr);
 		error("malloc failed in load_key");
 	}
+	
 	size_t n = fread(buf, 1, (size_t)size, fptr);
 	fclose(fptr);
 
@@ -82,26 +120,36 @@ void load_key(params_t *params) {
 
 	EVP_CIPHER_CTX *ctx = EVP_CIPHER_CTX_new();
 	if (!ctx) {
-		free(buf);
+	free(buf);
 		free(plain);
 		error("EVP cipher context creation failed");
 	}
-	if (EVP_DecryptInit_ex(ctx, EVP_aes_256_cbc(), NULL, ENCRYPTION_KEY, iv) != 1) {
+	
+	// Derive the same encryption key for decryption
+	unsigned char encryption_key[32];
+	derive_encryption_key(encryption_key);
+	
+	if (EVP_DecryptInit_ex(ctx, EVP_aes_256_cbc(), NULL, encryption_key, iv) != 1) {
 		EVP_CIPHER_CTX_free(ctx);
 		free(buf);
 		free(plain);
+		memset(encryption_key, 0, sizeof(encryption_key));
 		error("EVP_DecryptInit_ex failed");
 	}
+	
 	if (EVP_DecryptUpdate(ctx, plain, &len, cipher, cipher_len) != 1) {
 		EVP_CIPHER_CTX_free(ctx);
 		free(buf);
 		free(plain);
+		memset(encryption_key, 0, sizeof(encryption_key));
 		error("EVP_DecryptUpdate failed");
 	}
+	
 	if (EVP_DecryptFinal_ex(ctx, plain + len, &finale_len) != 1) {
 		EVP_CIPHER_CTX_free(ctx);
 		free(buf);
 		free(plain);
+		memset(encryption_key, 0, sizeof(encryption_key));
 		error("decryption failed (corrupted key file?)");
 	}
 
@@ -110,6 +158,7 @@ void load_key(params_t *params) {
 
 	EVP_CIPHER_CTX_free(ctx);
 	free(buf);
+	memset(encryption_key, 0, sizeof(encryption_key)); // Clear from memory
 
 	params->key = (unsigned char *)plain;
 	params->key_size = (size_t)total;

@@ -53,7 +53,11 @@ int send_arp_frame(int fd, t_arp_frame *frame, const t_config config) {
 	sockadr.sll_family = AF_PACKET;
 	sockadr.sll_ifindex = config.ifindex;
 	sockadr.sll_halen = 6;
-	get_hex_from_mac_addr(sockadr.sll_addr, config.target_mac);
+	
+	// Check return value and handle errors
+	if (get_hex_from_mac_addr(sockadr.sll_addr, config.target_mac) != 0) {
+		return -1;
+	}
 
 	if (sendto(fd, frame, sizeof(t_arp_frame), 0,
 			(struct sockaddr *)&sockadr, sizeof(sockadr)) == -1)
@@ -82,9 +86,10 @@ void restore_arp(int fd, t_config config) {
 	get_hex_from_mac_addr(in.eth.src_mac, config.local_mac);
 	get_hex_from_mac_addr(out.eth.src_mac, config.local_mac);
 
+	// Send restoration packets quickly
 	for (int i = 0; i < 5; i++) {
 		send_arp_frame(fd, &in, c_in);
 		send_arp_frame(fd, &out, c_out);
-		sleep(1);
+		usleep(100000); // 100ms instead of 1s for faster cleanup
 	}
 }

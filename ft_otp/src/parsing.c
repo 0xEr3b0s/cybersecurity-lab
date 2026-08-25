@@ -58,14 +58,14 @@ void check_key(params_t *params) {
 							  rebuild_str[count_char - 1] == '\r'))
 		rebuild_str[--count_char] = '\0';
 
-	const char *msg = NULL;
-	if (count_char < 64)
-		msg = "key must be at least 64 hexadecimal characters";
-	else if ((count_char % 2) != 0)
-		msg = "key length must be even";
-	if (msg != NULL) {
+	// Validate key from file
+	if (count_char < 64) {
 		free(rebuild_str);
-		error((char *)msg);
+		error("key must be at least 64 hexadecimal characters");
+	}
+	if ((count_char % 2) != 0) {
+		free(rebuild_str);
+		error("key length must be even");
 	}
 	for (size_t i = 0; i < count_char; i++) {
 		if (isxdigit((unsigned char)rebuild_str[i]) == 0) {
@@ -74,12 +74,14 @@ void check_key(params_t *params) {
 		}
 	}
 
-	params->key = malloc(count_char);
+	// Allocate with +1 for null terminator to ensure valid C string
+	params->key = malloc(count_char + 1);
 	if (!params->key) {
 		free(rebuild_str);
 		error("malloc failed in check_key");
 	}
 	memcpy(params->key, rebuild_str, count_char);
+	params->key[count_char] = '\0';  // Null-terminate for safety
 	params->key_size = count_char;
 
 	free(rebuild_str);

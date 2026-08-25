@@ -7,7 +7,7 @@ from urllib.parse import urlparse, urljoin
 from bs4 import BeautifulSoup
 
 
-DEBUG_FLAG = True
+DEBUG_FLAG = False  # Set to True for debugging, False in production
 
 
 def handle_options():
@@ -64,7 +64,7 @@ def handle_options():
                 "option not recognized, please enter a valid option (-r -l -p)"
             )
     url_to_scrap = args[-1]
-    if re.search("^https?://", url_to_scrap) is None:
+    if not re.match(r"^https?://", url_to_scrap):
         raise AssertionError("URL must start with http:// or https://")
     return recursive_flag, depth_len, save_path, url_to_scrap
 
@@ -114,7 +114,7 @@ def save_image(images_set, save_path, base_url):
     Relative image URLs are resolved against base_url. Each file is
     named with an 8-char hash prefix (to avoid collisions) followed by
     a truncated original name and its extension. Failed downloads are
-    skipped silently.
+    skipped silently. Uses atomic writes to prevent corruption.
 
     Args:
         images_set (set[str]): image URLs (relative or absolute).
@@ -125,6 +125,7 @@ def save_image(images_set, save_path, base_url):
         None
     """
 
+    import tempfile
     os.makedirs(save_path, exist_ok=True)
     authorized_extension = ["jpg", "jpeg", "png", "gif", "bmp"]
     headers = {"User-Agent": "Mozilla/5.0"}
@@ -140,8 +141,16 @@ def save_image(images_set, save_path, base_url):
                     continue
                 img_data = response.content
                 final_path = os.path.join(save_path, filename)
-                with open(final_path, "wb") as handler:
-                    handler.write(img_data)
+                # Atomic write: write to temp file then rename
+                fd, temp_path = tempfile.mkstemp(dir=save_path, suffix='.' + ext)
+                try:
+                    with os.fdopen(fd, 'wb') as handler:
+                        handler.write(img_data)
+                    os.replace(temp_path, final_path)
+                except:
+                    if os.path.exists(temp_path):
+                        os.unlink(temp_path)
+                    raise
         except requests.exceptions.RequestException:
             continue
 
@@ -168,7 +177,7 @@ def scrape_page(url, save_path, current_depth, max_depth, visited, base_domain):
         None
     """
 
-    if current_depth > max_depth:
+    if current_depth >= max_depth:
         return
     if url in visited:
         return

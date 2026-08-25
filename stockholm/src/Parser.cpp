@@ -26,10 +26,10 @@ Parser::Parser(int ac, char **av) {
 		cmdOptionExists(av, av + ac, "-r")) {
 		this->option_field |= OPT_REVERSE;
 		raw = (cmdOptionExists(av, av + ac, "-r"))
-				  ? getCmdOption(av, av + ac, "-r")
-				  : getCmdOption(av, av + ac, "--reverse");
+			? getCmdOption(av, av + ac, "-r")
+			: getCmdOption(av, av + ac, "--reverse");
 		if (raw == nullptr) {
-			std::cerr << "Error: --reverse/-r need a key" << std::endl;
+			std::cerr << "Error: --reverse/-r requires a key argument" << std::endl;
 			exit(1);
 		}
 		this->key = raw;
@@ -42,7 +42,7 @@ Parser::Parser(int ac, char **av) {
 			}
 		}
 		if (found == nullptr) {
-			std::cerr << "Error: encryption key required" << std::endl;
+			std::cerr << "Error: encryption/decryption key required" << std::endl;
 			exit(1);
 		}
 		this->key = found;
