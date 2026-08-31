@@ -56,7 +56,7 @@ Documentation :
 
 > Analogie : tester un moteur de voiture au banc (unitaire : une pièce isolée) contre tester la voiture sur circuit (intégration : tout ensemble, dans les conditions réelles).
 
-⚠️ **Piège classique** : mettre un test qui requête le réseau dans un `#[test]` ordinaire. **Symptôme** : `make test` échoue sur la machine du correcteur qui n'a pas lancé le labo. **Correction** : `#[ignore]` sur les tests réseau, lancés à part (`make test-net` / `cargo test -- --ignored`).
+⚠️ **Piège classique** : mettre un test qui requête le réseau dans un `#[test]` ordinaire. **Symptôme** : `make test` échoue sur une machine qui n'a pas lancé le labo. **Correction** : `#[ignore]` sur les tests réseau, lancés à part (`make test-net` / `cargo test -- --ignored`).
 
 ### 3.2 Lancer le binaire depuis un test
 

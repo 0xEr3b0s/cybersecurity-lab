@@ -125,7 +125,7 @@ cybersecurity-piscine/
 ## 📝 Notes
 
 - Each subfolder contains its own detailed README with setup instructions
-- Projects follow 42 school standards and restrictions
+- Projects follow strict coding standards and restrictions
 - Bug fixes applied: ARP frame correctness, buffer overflow protections, encryption security
 - All projects compile and run without warnings
 
